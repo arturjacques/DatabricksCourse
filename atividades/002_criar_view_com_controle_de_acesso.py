@@ -9,13 +9,16 @@
 
 # COMMAND ----------
 
-# MAGIC %sql
+
+
+# COMMAND ----------
+
+# MAGIC %md
 # MAGIC
-# MAGIC CREATE OR REPLACE VIEW silver.view_compras
-# MAGIC AS (
-# MAGIC SELECT *
-# MAGIC FROM silver.compras
-# MAGIC WHERE (COUNTRY = 'BR' AND is_member('br_users'))
-# MAGIC OR (COUNTRY = 'US' AND is_member('usa_users'))
-# MAGIC OR is_member('admins')
-# MAGIC )
+# MAGIC <h1>Criar uma view de compras que mostre um Hashed do user_id de compras para usuários não admins</h1>
+# MAGIC
+# MAGIC <p>Concatenar uma "salt key" com o user_id antes de hash a column</p>
+
+# COMMAND ----------
+
+
