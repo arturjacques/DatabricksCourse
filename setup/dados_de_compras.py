@@ -69,5 +69,5 @@ class CreateComprasData:
 
 # COMMAND ----------
 
-for i in range(0, 10000):
+for i in range(0, 3):
     CreateComprasData().create_and_save_data(1000)

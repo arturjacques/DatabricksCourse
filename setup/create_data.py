@@ -22,3 +22,9 @@ configure.start_course()
 # COMMAND ----------
 
 configure.finish_course()
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC
+# MAGIC GRANT SELECT ON ANY FILE TO `students`
