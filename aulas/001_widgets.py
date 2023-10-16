@@ -1,12 +1,10 @@
 # Databricks notebook source
-# MAGIC %md
+# MAGIC %md #Widgets
+
+# COMMAND ----------
+
+# MAGIC %md ##Widgets de texto
 # MAGIC
-# MAGIC <p>
-# MAGIC <h1>Widgets</h1>
-# MAGIC </p>
-# MAGIC <p>
-# MAGIC <h2>Widgets de texto</h2>
-# MAGIC </p>
 # MAGIC <p>
 # MAGIC   Textos são livres e podem receber qualquer valor.
 # MAGIC </p>
@@ -25,8 +23,7 @@ print(f"start_date é {start_date}\nend_date {end_date}")
 
 # COMMAND ----------
 
-# MAGIC %md
-# MAGIC <h2>Widgets de dropdown</h2>
+# MAGIC %md ##Widgets de dropdown
 # MAGIC <p>
 # MAGIC   Possuem valores predeterminados que podem selecionados
 # MAGIC </p>
@@ -44,7 +41,7 @@ print(f"debug mode é {debug} e é do tipo {type(debug)}")
 # COMMAND ----------
 
 # MAGIC %md
-# MAGIC <h2>Widgets de combobox</h2>
+# MAGIC ## Widgets de combobox
 # MAGIC <p>
 # MAGIC   Muito parecido com dropbox possui valores predeterminados que pode selecionar.
 # MAGIC </p>
@@ -61,8 +58,7 @@ print(f"country é {country}")
 
 # COMMAND ----------
 
-# MAGIC %md
-# MAGIC <h2>Widgets de multiselect</h2>
+# MAGIC %md ## Widgets de multiselect
 # MAGIC <p>
 # MAGIC   Pode selecionar um ou mais elementos.
 # MAGIC </p>
