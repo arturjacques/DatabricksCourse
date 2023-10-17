@@ -163,7 +163,14 @@ help(df_pessoas.join)
 
 # COMMAND ----------
 
-df_pessoas.join(df_videogames_favoritos, ['id_pessoa'], 'left').display()
+(df_pessoas
+ .alias('pessoas')
+ .join(
+     df_videogames_favoritos.alias("videogame"), 
+     ['id_pessoa'], 
+     'left')
+ .select("pessoas.id_pessoa", "videogame.videogame")
+ ).display()
 
 # COMMAND ----------
 

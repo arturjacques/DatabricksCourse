@@ -5,7 +5,7 @@
 
 # MAGIC %md ## Linguagens
 # MAGIC
-# MAGIC <p>O databricks é uma plataforma baseada em spark para processamento de dados. O processamento de dados pode ser feito em Python, Scala, R e SQL. Existe uma linguagem padrão do notebook configurada e as outras linguagens podem ser utilizadas com o comando mágico "%" e o nome da linaguem.</p>
+# MAGIC <p>O databricks é uma plataforma baseada em spark para processamento de dados. O processamento de dados pode ser feito em Python, Scala, R e SQL. Existe uma linguagem padrão do notebook configurada e as outras linguagens podem ser utilizadas com o comando mágico "%" e o nome da lingagem.</p>
 
 # COMMAND ----------
 

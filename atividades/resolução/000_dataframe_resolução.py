@@ -29,7 +29,13 @@ df.display()
 
 # COMMAND ----------
 
+df.createOrReplaceTempView('compras')
 
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC
+# MAGIC SELECT * FROM compras
 
 # COMMAND ----------
 
@@ -41,7 +47,11 @@ df.display()
 
 # COMMAND ----------
 
+from pyspark.sql.functions import current_date
 
+df_with_metadata = df.withColumn('ingestion_date', current_date())
+
+df_with_metadata.display()
 
 # COMMAND ----------
 
@@ -53,7 +63,9 @@ df.display()
 
 # COMMAND ----------
 
+df_renamed = df.withColumnRenamed('valor', 'valor_usd')
 
+df_renamed.display()
 
 # COMMAND ----------
 
@@ -65,7 +77,17 @@ df.display()
 
 # COMMAND ----------
 
+from pyspark.sql.functions import count_distinct, count, max
 
+(df
+ .groupBy('id_pessoa')
+ .agg(
+    count_distinct("compra_id").alias("compras_feitas"),
+    count("*").alias("items_totais_comprados"),
+    count_distinct("id_product").alias("itens_diferentes_comprados"),
+    max('valor').alias("valor_item_mais_caro_comprado")
+ )
+).display()
 
 # COMMAND ----------
 
@@ -103,7 +125,17 @@ def test_clientes_sumarizados():
 
     assert resultado_esperado == resultado_retornado, f"os dados não estão iguais {resultado_esperado} e {resultado_retornado}"
 
+
+
 # COMMAND ----------
 
 def clientes_sumarizados(df):
-    return #write here
+    return df.groupBy("id_pessoa").agg(count("*").alias("compras_qt"), sum("valor").alias("valor_total"))
+  
+test_clientes_sumarizados()
+
+# COMMAND ----------
+
+df_processed = clientes_sumarizados(df)
+
+df_processed.display()
