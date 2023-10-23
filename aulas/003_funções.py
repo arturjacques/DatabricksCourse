@@ -28,7 +28,7 @@ from pyspark.sql.functions import current_timestamp, input_file_name, lit
 from pyspark.sql import DataFrame
 from uuid import uuid4
 
-def add_metadata_table(df: DataFrame, data_source)-> DataFrame:
+def add_metadata_table(df: DataFrame, data_source: str)-> DataFrame:
     return (df
         .withColumn("ingestion_ts", current_timestamp())
         .withColumn("batch_id", lit(str(uuid4())))

@@ -125,7 +125,7 @@ schema = ArrayType(
                             StructField("id_product", StringType()),
                             StructField("nome_do_produto", StringType()),
                             StructField("preço", DecimalType(16, 2)),
-                            StructField("peso", StringType())
+                            StructField("peso", DecimalType(16, 2))
                         ]
                     )
                 ))
@@ -208,6 +208,5 @@ if save_table_merge:
         .merge(df_todos_os_items.alias("source"), merge_condition)
         .whenMatchedUpdateAll()
         .whenNotMatchedInsertAll()
-        .whenNotMatchedBySourceDelete()
         .execute()
     )
