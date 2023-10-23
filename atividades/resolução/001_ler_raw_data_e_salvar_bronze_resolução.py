@@ -5,20 +5,22 @@
 
 # COMMAND ----------
 
-storage_account_name = "dlstraining01"
-container_name = "raw"
-sas_token = dbutils.secrets.get('kv-training-03', 'dlstraining01readtoken')
-
-spark.conf.set(
-    f"fs.azure.sas.{container_name}.{storage_account_name}.blob.core.windows.net",
-    sas_token
-)
+# MAGIC %sql
+# MAGIC
+# MAGIC GRANT SELECT ON ANY FILE TO `users`;
 
 # COMMAND ----------
 
-data_path = f"wasbs://{container_name}@{storage_account_name}.blob.core.windows.net/"
+# MAGIC %sql
+# MAGIC
+# MAGIC CREATE SCHEMA IF NOT EXISTS bronze;
+# MAGIC CREATE SCHEMA IF NOT EXISTS silver;
 
-dbutils.fs.ls(data_path)
+# COMMAND ----------
+
+from functions.data_creation import CreateComprasDataCsv
+
+CreateComprasDataCsv(spark, dbutils).create_and_save_data()
 
 # COMMAND ----------
 
@@ -39,6 +41,7 @@ from pyspark.sql import DataFrame
 checkpoint_location_bronze = '/tmp/compras_bronze_checkpoint'
 schema_location = '/tmp/compras_schema'
 bronze_table = 'bronze.compras'
+data_path = '/tmp/compras'
 
 checkpoint_location_silver = '/tmp/compras_silver_checkpoint'
 silver_table = 'silver.compras'
@@ -61,7 +64,7 @@ stream = (
     spark.readStream.format("cloudFiles")
     .option("cloudFiles.format", "csv") 
     .option("cloudFiles.schemaLocation",schema_location) 
-    .load(data_path+'/compras')
+    .load(data_path)
     .withColumn('origin_file_name', input_file_name())
     .withColumn('extraction_date', current_timestamp())
     .withColumn('data_source', lit('compras'))

@@ -5,20 +5,15 @@
 
 # COMMAND ----------
 
-storage_account_name = "dlstraining01"
-container_name = "raw"
-sas_token = dbutils.secrets.get('kv-training-03', 'dlstraining01readtoken')
-
-spark.conf.set(
-    f"fs.azure.sas.{container_name}.{storage_account_name}.blob.core.windows.net",
-    sas_token
-)
+# MAGIC %sql
+# MAGIC
+# MAGIC GRANT SELECT ON ANY FILE TO `users`
 
 # COMMAND ----------
 
-data_path = f"wasbs://{container_name}@{storage_account_name}.blob.core.windows.net/"
+from functions.data_creation import CreateComprasDataCsv
 
-dbutils.fs.ls(data_path)
+CreateComprasDataCsv(spark, dbutils).create_and_save_data()
 
 # COMMAND ----------
 
@@ -47,7 +42,7 @@ dbutils.fs.ls(data_path)
 
 # MAGIC %md
 # MAGIC
-# MAGIC <h1>Mostrar históricos das tabelas</h1>
+# MAGIC <h2>Mostrar históricos das tabelas</h2>
 
 # COMMAND ----------
 
@@ -57,7 +52,7 @@ dbutils.fs.ls(data_path)
 
 # MAGIC %md
 # MAGIC
-# MAGIC <h1>Comentar as colunas e a tabela da silver com o que é cada coluna e a tabela</h1>
+# MAGIC <h2>Comentar as colunas e a tabela da silver com o que é cada coluna e a tabela</h2>
 
 # COMMAND ----------
 
