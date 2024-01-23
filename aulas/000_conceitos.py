@@ -227,3 +227,27 @@ df_join.explain(mode='simple')
 # MAGIC <p><b>Task</b>: é a menor unidade de trabalho executada. Um 'stage' é composto por várias task distribuídas entre diferentes máquinas.</p>
 # MAGIC
 # MAGIC <p>Leitura adicional: <a href="https://medium.com/@diehardankush/what-are-job-stage-and-task-in-apache-spark-2fc0d326c15f">https://medium.com/@diehardankush/what-are-job-stage-and-task-in-apache-spark-2fc0d326c15f</a></p>
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
+# MAGIC ## Medallion Architecture
+# MAGIC
+# MAGIC <p>
+# MAGIC   A arquitetura medalion separa os dados em 3 camadas bronze, silver e gold.
+# MAGIC </p>
+# MAGIC
+# MAGIC 1. Bronze: recebe o dado cru como obtido na fonte, os dados geralmente são salvos como string e somente apendados em uma tabela na camada bronze, essa camada não é para analises ela serve somente como um ponto de recebimento de dados que serão processados.
+# MAGIC 2. Silver: ela tem como fonte a camada bronze mas tem durante o processo de alimentar as tabelas silver é removido duplicados e os dados são limpos.
+# MAGIC 3. Gold: Uma camada de agregação com regras de negocio. Nessa camada que estão as tabelas que serão fonte para o BI.
+# MAGIC
+# MAGIC <p>Leitura adicional: <a href="https://www.databricks.com/glossary/medallion-architecture">https://www.databricks.com/glossary/medallion-architecture</a></p>
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
+# MAGIC ![Arquitetura Spark](https://cms.databricks.com/sites/default/files/inline-images/building-data-pipelines-with-delta-lake-120823.png)
+# MAGIC
+# MAGIC <p>Fonte: <a href="https://www.databricks.com/glossary/medallion-architecture">https://www.databricks.com/glossary/medallion-architecture</a></p>
