@@ -2,6 +2,10 @@
 # MAGIC %md
 # MAGIC
 # MAGIC # Trabalhando com JSON
+# MAGIC
+# MAGIC <p>
+# MAGIC   Muitas fontes de dados vem em json ou estruturas de documentos, fontes de API, banco de dados MongoDB, fontes web e etc. Essa fonte de dados está sujeita a muitas mudanças com o tempo e pode causar muitos erros nas pipelines, principalmente devido a mudanças na estrutura do json e nos tipos dos dados.
+# MAGIC </p>
 
 # COMMAND ----------
 
@@ -11,12 +15,45 @@
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC
+# MAGIC <p>
+# MAGIC   Criação de um schema para o Aluno para criar isolamento entre as atividades. Dessa forma cada aluno salva em seu próprio schema chamando a variável "SCHEMA".
+# MAGIC </p>
+
+# COMMAND ----------
+
+ALUNO = spark.sql("SELECT current_user() as user").collect()[0].user.split("@")[0]
+
+if ALUNO == "":
+    raise Exception("É necessário preencher o nome do aluno")
+elif " " in ALUNO:
+    raise Exception("O nome do aluno não pode conter espaço")
+
+SCHEMA = ALUNO + "_schema"
+
+spark.sql(f"CREATE SCHEMA IF NOT EXISTS {SCHEMA}")
+
+print(30*'=')
+print(f"CREATE USER SCHEMA {SCHEMA}")
+print(30*'=')
+
+# COMMAND ----------
+
 from functions.data_creation import create_compras_de_usuario_list
 
-diretorio_json = "/tmp/compras_json"
+diretorio_json = f"/tmp/{ALUNO}/compras_json"
 
 dbutils.fs.rm(diretorio_json, True)
 dbutils.fs.mkdirs(diretorio_json)
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
+# MAGIC <p>
+# MAGIC   criando arquivos json para serem consumidos.
+# MAGIC </p>
 
 # COMMAND ----------
 
@@ -43,25 +80,35 @@ display(dbutils.fs.ls(diretorio_json))
 
 # MAGIC %md
 # MAGIC
-# MAGIC <p>Utilizar o a opção de ler Json do pyspark facilita bastante para entender a estrutura. Porem isso força o spark a inferir o schema e em caso da estrutura do json mudar pode causar falhas na leitura e no salvamento.</p>
+# MAGIC <p>Utilizar o a opção de ler Json do pyspark facilita bastante para entender a estrutura. Porem isso força o spark a inferir o schema e em caso da estrutura do json mudar pode causar falhas na leitura e no salvamento. Mas é possível obter o schema do json que foi inferido para realizar a transformação depois.</p>
 
 # COMMAND ----------
 
-df_json = spark.read.json("/tmp/compras_json/*.json")
+df_json = spark.read.json(f"{diretorio_json}/*.json")
 
 # COMMAND ----------
 
-df_json.display()
+df_json.limit(5).display()
+
+# COMMAND ----------
+
+df_json.printSchema()
+
+# COMMAND ----------
+
+df_json.schema
 
 # COMMAND ----------
 
 # MAGIC %md
 # MAGIC
-# MAGIC <p>Utilizando a opção de ler texto para ler json a estrutura não fica tão boa visualmente mas garante que a ingestão sempre será feita corretamente.</p>
+# MAGIC <p>
+# MAGIC   Utilizando a opção de ler texto para ler json a estrutura não fica tão boa visualmente mas garante que a ingestão sempre será feita corretamente.
+# MAGIC </p>
 
 # COMMAND ----------
 
-df_text = spark.read.text("/tmp/compras_json/*.json")
+df_text = spark.read.text(f"{diretorio_json}/*.json")
 df_text.display()
 
 # COMMAND ----------
@@ -70,7 +117,9 @@ df_text.display()
 # MAGIC
 # MAGIC ## Salvar na bronze
 # MAGIC
-# MAGIC <p>Importante salvar na bronze com metadados do jeito que eles foram lidos antes de tratar o json.</p>
+# MAGIC <p>
+# MAGIC   Importante salvar na bronze com metadados do jeito que eles foram lidos antes de tratar o json. Geralmente as camadas bronze, silver e gold ficam em schemas diferentes, porem para maior simplicidade vamos salvar no schema do aluno todas as etapas do processo. Também é ideal que cada etapa do processo tenha seu próprio notebook para aumentar o isolamento dos códigos facilitando manutenção (quanta uma etapa do processo falha não é necessário rodar todas as etapas para resolver em uma pipeline).
+# MAGIC </p>
 
 # COMMAND ----------
 
@@ -94,7 +143,15 @@ df_with_metadata.display()
 
 # COMMAND ----------
 
-df_with_metadata.write.mode('append').saveAsTable("bronze.json_compras")
+# MAGIC %md
+# MAGIC
+# MAGIC <p>
+# MAGIC   Geralmente as tabelas bronze são salvas utilizando append para evitar erros durante o processo e porque deseja-se manter todos os dados da leitura. Mas não é lido todos os dados da origem sempre na hora de salvamente e em aulas posteriores veremos formas de realizar leituras somente dos dados novos.
+# MAGIC </p>
+
+# COMMAND ----------
+
+df_with_metadata.write.mode('append').saveAsTable(f"{SCHEMA}.bronze_json_compras")
 
 # COMMAND ----------
 
@@ -106,7 +163,7 @@ df_with_metadata.write.mode('append').saveAsTable("bronze.json_compras")
 
 # COMMAND ----------
 
-df_bronze = spark.table("bronze.json_compras").dropDuplicates(subset=['input_file_name'])
+df_bronze = spark.table(f"{SCHEMA}.bronze_json_compras").dropDuplicates(subset=['input_file_name'])
 
 # COMMAND ----------
 

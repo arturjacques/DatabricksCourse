@@ -6,6 +6,7 @@ from random import (
 import uuid
 from pyspark.sql import Row
 from pyspark.sql import DataFrame
+import datetime
 
 produtos = [{"id_product": 1, "nome_do_produto": "camiseta", "preço": 25.00, "peso": 0.2},
             {"id_product": 2, "nome_do_produto": "calça", "preço": 50.00, "peso": 0.4},
@@ -23,13 +24,18 @@ pessoas = [
 ]
 
 
-def create_compras_de_usuario(spark, rows=20):
+def create_compras_de_usuario(spark, n_compras=20, start_date='2022-01-01', end_date='2023-01-01'):
     compras_list = []
+    start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+    end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d")
 
 
-    for _ in range(rows):
+    for _ in range(n_compras):
         user = choice(pessoas)
         compra_id = str(uuid.uuid4())
+
+        random_seconds = randint(0, int((end_date - start_date).total_seconds()))
+        random_date = start_date + datetime.timedelta(seconds=random_seconds)
 
         for quantidade in range(randint(0, 10)):
             produto = choice(produtos)
@@ -38,6 +44,7 @@ def create_compras_de_usuario(spark, rows=20):
                     "compra_id": compra_id,
                     "id_pessoa": user["id_pessoa"],
                     "id_product": produto["id_product"],
+                    "compra_ts": random_date,
                     "valor": produto["preço"]
                 }
             )

@@ -5,6 +5,14 @@
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC
+# MAGIC <p>
+# MAGIC   Criação de um schema para o Aluno para criar isolamento entre as atividades. Dessa forma cada aluno salva em seu próprio schema chamando a variável "SCHEMA".
+# MAGIC </p>
+
+# COMMAND ----------
+
 ALUNO = spark.sql("SELECT current_user() as user").collect()[0].user.split("@")[0]
 
 if ALUNO == "":
