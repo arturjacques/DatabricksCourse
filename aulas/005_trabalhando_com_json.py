@@ -159,7 +159,7 @@ df_with_metadata.write.mode('append').saveAsTable(f"{SCHEMA}.bronze_json_compras
 # MAGIC
 # MAGIC ## Limpar dados e salvar na silver
 # MAGIC
-# MAGIC <p>Agora podemos tratar o json para salvar sem duplicados na silver. Primeira etapa é dar uma estrutura para a coluna do json.</p>
+# MAGIC <p>Agora podemos tratar o json para salvar sem duplicados na silver, também está sendo removido arquivos iguais porque na estrutura de salvamento da bronze pode acontecer do mesmo arquivo ser salvo mais de uma vez. Para limpar os dados precisamos tratar a column value para ter ter uma tabela com schema marcado.</p>
 
 # COMMAND ----------
 
@@ -196,7 +196,7 @@ df_json_treated.display()
 
 # MAGIC %md
 # MAGIC
-# MAGIC <p>Com o json tratado é possível realizar transformações em colunas. Primeiramente cada compra deve estar em uma linha individual</p>
+# MAGIC <p>Com o json tratado é possível realizar transformações em colunas. Primeiramente cada compra deve estar em uma linha individual e como é um array podemos usar o comando explode que converte o array para uma nova linha para cada elemento do array.</p>
 
 # COMMAND ----------
 
@@ -208,7 +208,7 @@ df_compras_separeted.display()
 
 # MAGIC %md
 # MAGIC
-# MAGIC <p>Com as compras separadas é possível criar uma coluna nova para cada chave do json.</p>
+# MAGIC <p>Com as compras separadas é possível criar uma coluna nova para cada chave do json. Usando o wild card "*" você diz que dentro de uma coluna cada elemento ira se tornar uma coluna própria e após isso será necessário remover a coluna antiga que continha todas as colunas em uma estrutura mais complexa.</p>
 
 # COMMAND ----------
 
@@ -219,7 +219,7 @@ df_compras_columns.display()
 
 # MAGIC %md
 # MAGIC
-# MAGIC <p>Agora é possível ter uma linha para cada produto de uma compra</p>
+# MAGIC <p>Agora é possível ter uma linha para cada produto de uma compra usando o comando explode novamente para ter uma linha para cada item da compra. Mas utilizando o comando "explode" ira perder a informação sobre a posição do item e pode ser que houver 2 items iguais na mesma compra a linha fique exatamente igual por isso podemos utilizar a função posexplode que explode cada item em uma linha nova mas também cria uma coluna nova com a posição do item.</p>
 
 # COMMAND ----------
 
@@ -247,7 +247,7 @@ df_todos_os_items.display()
 
 from delta.tables import DeltaTable
 
-table_name = 'silver.compras_json'
+table_name = f'{SCHEMA}.silver_compras_json'
 save_table_merge = False
 merge_condition = "(source.compra_id = target.compra_id) AND (source.item_position = target.item_position)"
 
@@ -267,3 +267,14 @@ if save_table_merge:
         .whenNotMatchedInsertAll()
         .execute()
     )
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
+# MAGIC ## LIMPEZA DO AMBIENTE DO USUARIO
+
+# COMMAND ----------
+
+spark.sql(f"DROP SCHEMA IF EXISTS {SCHEMA} CASCADE")
+dbutils.fs.rm(diretorio_json, True)
