@@ -59,6 +59,111 @@ df_videogames_favoritos = spark.createDataFrame(videogames_favoritos)
 
 # MAGIC %md
 # MAGIC
+# MAGIC ## Formato de Dados
+# MAGIC
+# MAGIC <p>
+# MAGIC     Existem muitos formatos de dados json, csv, parquet, avro, orc, Delta e etc. Importante notar que quando estamos lidando com uma tabela no databricks a tabela nada mais é que um apontamento para uma serie de arquivos que pode estar visível para o usuário ou não. Cada formato tem suas vantagens e desvantagens mas um formato muito utilizado na estrutura spark é o Delta. Delta é um formato de dados que tem por os aquivos salvos em parquet porém é colocado uma cama lógica em cima atravez do _delta_log que permite operações ACID com essa tabela. Logo torna-se possível realizar merge, updates, deletes, inserts na tabela sem corromper os dados e garantindo que ou o processo funciona ou falha por completo. Por padrão quando é salva uma tabela no Databricks é utilizado Delta.
+# MAGIC </p>
+# MAGIC
+# MAGIC <p>Leitura adicional: <a href="https://www.linkedin.com/pulse/formatos-e-tipos-de-arquivos-na-aws-raphael-pizzo/?originalSubdomain=pt">https://www.linkedin.com/pulse/formatos-e-tipos-de-arquivos-na-aws-raphael-pizzo/?originalSubdomain=pt</a></p>
+# MAGIC
+# MAGIC <p>Leitura adicional: <a href="https://www.databricks.com/blog/2019/08/21/diving-into-delta-lake-unpacking-the-transaction-log.html">https://www.databricks.com/blog/2019/08/21/diving-into-delta-lake-unpacking-the-transaction-log.html</a></p>
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
+# MAGIC ### Features do Formato Delta
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
+# MAGIC #### Historico
+# MAGIC <p>
+# MAGIC   Essa função permite ver todas as alterações realizadas em uma tabela e por quem foi realizado, assim podendo ter um controle maior além de conseguir debugar com muito mais facilidade.
+# MAGIC </p>
+
+# COMMAND ----------
+
+# limpeza 
+spark.sql(f"DROP TABLE IF EXISTS {SCHEMA}.video_game")
+
+# primeira versão
+df_videogames_favoritos.write.saveAsTable(f"{SCHEMA}.video_game")
+
+#segunda versão
+videogames_favoritos_append = [ 
+    {"id_pessoa": 4, "console": "Nintendo Switch", "videogame": "Zelda: Tears of the kingdom"} 
+]
+videogames_favoritos_append_df = spark.createDataFrame(videogames_favoritos_append)
+videogames_favoritos_append_df.write.mode("append").saveAsTable(f"{SCHEMA}.video_game")
+
+#terceira versão
+spark.sql(f"DELETE FROM {SCHEMA}.video_game WHERE id_pessoa=3")
+
+#historico das versões 
+spark.sql(f"DESCRIBE HISTORY {SCHEMA}.video_game").display()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
+# MAGIC #### Time Travel
+# MAGIC <p>
+# MAGIC   Time Travel consiste na habilidade de ver versões anteriores da tabela, podendo consultar diferentes versões da tabela. Utilizando o histórico da tabela e possível verificar qual versão ler, utilizando "@" e o número da versão após o nome da tabegla é possível voltar para um estado anterior da tabela. Não é possível voltar para versões da tabela onde o vacuum já foi realizado.
+# MAGIC </p>
+# MAGIC
+# MAGIC <p>Leitura adicional: <a href="https://www.databricks.com/blog/2019/02/04/introducing-delta-time-travel-for-large-scale-data-lakes.html">https://www.databricks.com/blog/2019/02/04/introducing-delta-time-travel-for-large-scale-data-lakes.html</a></p>
+
+# COMMAND ----------
+
+#versão atual da tabela
+
+spark.table(f"{SCHEMA}.video_game").display()
+
+# COMMAND ----------
+
+#primeira versão da tabela
+
+spark.table(f"{SCHEMA}.video_game@v0").display()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
+# MAGIC ####Vacuum
+# MAGIC
+# MAGIC <p>
+# MAGIC   Vacuum é uma importante operação em tabelas Delta. Como elas mantém histórico de várias versões da tabela é importante com o tempo excluir versões antigas. O comando vacuum tem o valor minimo de 168 horas por padrão, o que signifca que versões da tabela que tem mais de 168 horas serão excluídas. Importante sempre que iniciar um novo projeto ter em mente que sera necessário rodar o vacuum de todas as tabelas deltas de tempos em tempos (o tempo de retenção dos dados ira variar de acordo com o a politica da empresa).
+# MAGIC   É possível alterar o check do tempo de retenção da tabela desabilitando o check no spark e assim podendo realizar vacuum anterior a 168 horas (1 semana).
+# MAGIC </p>
+# MAGIC
+# MAGIC <p>Leitura adicional: <a href="https://learn.microsoft.com/en-us/azure/databricks/sql/language-manual/delta-vacuum">https://learn.microsoft.com/en-us/azure/databricks/sql/language-manual/delta-vacuum</a></p>
+
+# COMMAND ----------
+
+#excluindo todas as versões antigas da tabela com retenção de 0 horas
+
+spark.conf.set("spark.databricks.delta.retentionDurationCheck.enabled", "false")
+spark.sql(f"VACUUM {SCHEMA}.video_game RETAIN 0 HOURS").display()
+
+# COMMAND ----------
+
+# A tabela continua existindo com a última versão
+
+spark.table(f"{SCHEMA}.video_game").display()
+
+# COMMAND ----------
+
+# agora não é mais possível fazer query na primeira versão da tabela
+
+spark.table(f"{SCHEMA}.video_game@v0").display()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
 # MAGIC ## Tipos de Tabelas
 
 # COMMAND ----------
