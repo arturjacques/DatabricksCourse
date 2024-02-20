@@ -19,7 +19,7 @@ CreateComprasDataCsv(spark, dbutils).create_and_save_data()
 
 # MAGIC %md
 # MAGIC
-# MAGIC <h2>Trazer os dados do que estão dentro da pasta "compras"</h2>
+# MAGIC <h2>Trazer os dados do que estão dentro da pasta "/tmp/compras"</h2>
 # MAGIC
 # MAGIC <p>Adicionar metadados (arquivo de origem, data de carga, nome da source)</p>
 # MAGIC <p>salvar no formato delta em uma tabela no schema bronze.</p>
@@ -32,7 +32,7 @@ CreateComprasDataCsv(spark, dbutils).create_and_save_data()
 
 # MAGIC %md
 # MAGIC
-# MAGIC <h2>Ler da bronze e salvar na silver (corrigindo alguns erros)</h2>
+# MAGIC <h2>Ler da bronze e salvar na silver corrigindo o tipo das colunas.</h2>
 
 # COMMAND ----------
 
