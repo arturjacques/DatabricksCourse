@@ -253,3 +253,18 @@ stream =(silver_df
             .option("checkpointLocation", diretorio_aluno+'/table_silver_checkpoint')
             .trigger(availableNow=True)
             .start())
+
+# COMMAND ----------
+
+spark.table(silver_table_streaming).display()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
+# MAGIC ## LIMPEZA DO AMBIENTE DO USUARIO
+
+# COMMAND ----------
+
+spark.sql(f"DROP SCHEMA IF EXISTS {SCHEMA} CASCADE")
+dbutils.fs.rm(diretorio_aluno, True)
