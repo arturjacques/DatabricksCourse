@@ -91,7 +91,7 @@ def create_files_with_data(num_of_files, dbfs_directory):
         with open(f"/dbfs/{dbfs_directory}/{uuid4()}.json", "w", encoding='utf8') as f:
             json.dump(compras_list, f, ensure_ascii=False)
 
-create_files_with_data(3, diretorio_comrpas)
+create_files_with_data(6, diretorio_comrpas)
 
 # COMMAND ----------
 
@@ -141,6 +141,10 @@ stream = (bronze_df_with_metadata
             .trigger(availableNow=True)
             .option("checkpointLocation", diretorio_aluno+'/table_checkpoint')
             .table(f"{SCHEMA}.bronze_compras"))
+
+# COMMAND ----------
+
+spark.table(f"{SCHEMA}.bronze_compras").display()
 
 # COMMAND ----------
 
@@ -227,6 +231,10 @@ class ProcessBronzeBatch:
         
 silver_table_batch = f"{SCHEMA}.silver_compras_batch"
 ProcessBronzeBatch(fornecedor_table_name, silver_table_batch).process_bronze_table(df, '1')
+
+# COMMAND ----------
+
+spark.table(f"{SCHEMA}.silver_compras_batch").display()
 
 # COMMAND ----------
 

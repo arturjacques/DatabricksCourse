@@ -71,6 +71,20 @@ df.display()
 
 # MAGIC %md
 # MAGIC
+# MAGIC ## Exercicio 5
+# MAGIC
+# MAGIC <p>
+# MAGIC     Crie uma tabela fazendo join da tabela customer com a tabela nation para obter o país do usuário no schema 'samples.tpch'.
+# MAGIC </p>
+
+# COMMAND ----------
+
+
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
 # MAGIC ## Desafio
 # MAGIC
 # MAGIC <p>O teste unitário a baixo valida uma função que sumariza um dataframe contendo para cara "id_pessoa" a quantidade total de compras "compras_qt" e o valor total comprado "valor_total". Escreva a função que recebe um dataframe e retorna um dataframe que passe no teste a baixo e a use para processar df e salvar em uma variável chamada df_processed.</p>
