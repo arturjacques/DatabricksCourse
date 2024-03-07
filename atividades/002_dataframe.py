@@ -121,3 +121,5 @@ def test_clientes_sumarizados():
 
 def clientes_sumarizados(df):
     return #write here
+
+test_clientes_sumarizados()

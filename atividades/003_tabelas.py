@@ -73,7 +73,7 @@ CreateComprasDataCsv(spark, dbutils).create_and_save_data()
 # MAGIC %md
 # MAGIC
 # MAGIC ## Exercício 4
-# MAGIC #### Comentar as colunas e a tabela da silver com o que é cada coluna e a tabela
+# MAGIC #### Comentar as colunas e a tabela da silver com o que é cada coluna representa na tabela.
 
 # COMMAND ----------
 
