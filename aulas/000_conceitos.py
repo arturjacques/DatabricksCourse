@@ -222,7 +222,7 @@ df_join.explain(mode='simple')
 # MAGIC
 # MAGIC <p><b>Job</b>: é o conjunto de transformações executado nos dados.</p>
 # MAGIC
-# MAGIC <p><b>Stage</b>: é o conjunto de operações que podem ser executado em pararelo sem reorganização dos dados. O limite do 'stage' vai ser definido quando é necessário transferir dados entre nós para continuar a execução</p>
+# MAGIC <p><b>Stage</b>: é o conjunto de operações que podem ser executado em pararelo sem reorganização dos dados. O limite do 'stage' vai ser definido quando é necessário transferir dados entre cores para continuar a execução</p>
 # MAGIC
 # MAGIC <p><b>Task</b>: é a menor unidade de trabalho executada. Um 'stage' é composto por várias task distribuídas entre diferentes máquinas.</p>
 # MAGIC
