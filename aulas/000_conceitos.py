@@ -103,7 +103,6 @@ df_join = (df_compras_select
     )
 )
 
-
 # COMMAND ----------
 
 # MAGIC %md
@@ -160,7 +159,7 @@ df_join.explain(mode='simple')
 # MAGIC
 # MAGIC <p><b>Executor</b>: é o responsável por executar as tasks.</p>
 # MAGIC
-# MAGIC <p><b>Task</b>: é qualquer conjunto de operações (select, joing, filter, algorítimo de machine learning, e.t.c) sobre os dados.</p>
+# MAGIC <p><b>Task</b>: é qualquer conjunto de operações (select, joing, filter, algorítimo de machine learning e etc) sobre os dados.</p>
 # MAGIC
 # MAGIC <p>Fonte: <a href="https://lorenadesouza.medium.com/bootcamp-de-dados-na-tw-spark-6633275480e4">https://lorenadesouza.medium.com/bootcamp-de-dados-na-tw-spark-6633275480e4</a></p>
 
@@ -172,7 +171,7 @@ df_join.explain(mode='simple')
 
 # MAGIC %md
 # MAGIC
-# MAGIC ![Spark Stages](https://media.licdn.com/dms/image/D4D12AQFvdf6KAsGdiA/article-cover_image-shrink_423_752/0/1682015360609?e=1709769600&v=beta&t=Q1Th_DpzOBGD_1p5WozGv5cWMkDOv3GUzSCBDlGeqL0)
+# MAGIC ![Spark Stages](https://media.licdn.com/dms/image/v2/D4D12AQFvdf6KAsGdiA/article-cover_image-shrink_600_2000/article-cover_image-shrink_600_2000/0/1682015360609?e=2147483647&v=beta&t=s_RYFc91hJZ0TkUzaTDcFouQMSEB6UxYuKkedYEjLIE)
 # MAGIC
 # MAGIC <p>Fonte: <a href="https://www.linkedin.com/pulse/wide-vs-narrow-transformations-sparkdistributed-compute-don-hilborn/">https://www.linkedin.com/pulse/wide-vs-narrow-transformations-sparkdistributed-compute-don-hilborn/</a></p>
 
@@ -180,7 +179,7 @@ df_join.explain(mode='simple')
 
 # MAGIC %md
 # MAGIC
-# MAGIC <p><b>Narrow Stages</b>: são estágios onde os dados não precisam ser organizados para que a execução funciona. cada execução trabalha em um parte dos dados principais. Narrow Stages são executados em paralelo.</p>
+# MAGIC <p><b>Narrow Stages</b>: são estágios onde os dados não precisam ser organizados para que a execução funcionar. cada execução trabalha em um parte dos dados principais. Narrow Stages são executados em paralelo.</p>
 # MAGIC
 # MAGIC <p><b>Wide Stages</b>: São estágios em que o dado precisa estar organizado entre os workers nodes do cluster. Cada Wide Stage precisa operar em todas as partições do RDD. Wides Stages normalmente demandam mais poder computacional que operações Narrow</p>
 # MAGIC
