@@ -12,7 +12,7 @@ if ALUNO == "":
 elif " " in ALUNO:
     raise Exception("O nome do aluno não pode conter espaço")
 
-SCHEMA = ALUNO + "_schema"
+SCHEMA = "hive_metastore." + ALUNO + "_schema"
 
 spark.sql(f"CREATE SCHEMA IF NOT EXISTS {SCHEMA}")
 
