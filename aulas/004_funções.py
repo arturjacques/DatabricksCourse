@@ -15,16 +15,7 @@
 # MAGIC
 # MAGIC ##SETUP
 # MAGIC
-# MAGIC <p>
-# MAGIC   Preparação do ambiente. Foi criada uma função que gera dados aleatórios de compras. Ele gera uma tabela com 5 colunas a compra_id que representa uma compra com vários items, compra_ts que é o timestamp da operação, id_pessoa que é o id do comprado, id_producto que é o id do produto e o valor do produto. Para obter a compra completa é necessário agrupar pela compra ID. A função pode receber 3 parametros, n_compras que é o número de compras que tera no dataframe, start_date a data de inicio dos dados, end_date data final dos dados.
-# MAGIC </p>
-
-# COMMAND ----------
-
-from functions.data_creation import create_compras_de_usuario
-
-df = create_compras_de_usuario(spark, n_compras=10, start_date='2024-01-01', end_date='2024-01-15')
-df.display()
+# MAGIC
 
 # COMMAND ----------
 
@@ -43,13 +34,30 @@ if ALUNO == "":
 elif " " in ALUNO:
     raise Exception("O nome do aluno não pode conter espaço")
 
-SCHEMA = ALUNO + "_schema"
+SCHEMA = "hive_metastore." + ALUNO + "_schema"
 
 spark.sql(f"CREATE SCHEMA IF NOT EXISTS {SCHEMA}")
 
 print(30*'=')
 print(f"CREATE USER SCHEMA {SCHEMA}")
 print(30*'=')
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
+# MAGIC <p>
+# MAGIC   Preparação do ambiente. Foi criada uma função que gera dados aleatórios de compras. Ele gera uma tabela com 5 colunas a compra_id que representa uma compra com vários items, compra_ts que é o timestamp da operação, id_pessoa que é o id do comprado, id_producto que é o id do produto e o valor do produto. Para obter a compra completa é necessário agrupar pela compra ID. A função pode receber 3 parametros, n_compras que é o número de compras que tera no dataframe, start_date a data de inicio dos dados, end_date data final dos dados.
+# MAGIC </p>
+
+# COMMAND ----------
+
+from functions.data_creation import create_compras_de_usuario
+
+df_data = create_compras_de_usuario(spark, n_compras=10, start_date='2024-01-01', end_date='2024-01-15')
+df_data.write.saveAsTable(f"{SCHEMA}.raw_data_example")
+df = spark.table(f"{SCHEMA}.raw_data_example")
+df.display()
 
 # COMMAND ----------
 
@@ -66,7 +74,7 @@ print(30*'=')
 
 # COMMAND ----------
 
-from pyspark.sql.functions import current_timestamp, input_file_name, lit
+from pyspark.sql.functions import current_timestamp, input_file_name, lit, col, coalesce, lit
 from pyspark.sql import DataFrame
 from uuid import uuid4
 
@@ -74,7 +82,7 @@ def add_metadata_table(df: DataFrame, data_source: str)-> DataFrame:
     return (df
         .withColumn("ingestion_ts", current_timestamp())
         .withColumn("batch_id", lit(str(uuid4())))
-        .withColumn("input_file_name", input_file_name())
+        .withColumn("input_file_name", col("_metadata.file_name"))
         .withColumn("data_source", lit(data_source))
     )
 
@@ -146,7 +154,7 @@ get_table_columns_information_list(f"{SCHEMA}.functions_table")
 def set_column_commentary(table_name, col_name, col_type, comment):
     spark.sql(f"ALTER TABLE {table_name} CHANGE {col_name} {col_name} {col_type} COMMENT '{comment}'")
 
-set_column_commentary(f"{SCHEMA}.functions_table", "compra_id", 'string', 'id da compra pode ids repetidos pertence ao mesmo carrinho')
+set_column_commentary(f"{SCHEMA}.functions_table", "compra_id", 'string', 'id da compra, ids repetidos pertence ao mesmo carrinho')
 
 get_table_columns_information_list(f"{SCHEMA}.functions_table")
 
