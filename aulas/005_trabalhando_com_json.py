@@ -30,7 +30,7 @@ if ALUNO == "":
 elif " " in ALUNO:
     raise Exception("O nome do aluno não pode conter espaço")
 
-SCHEMA = ALUNO + "_schema"
+SCHEMA = "hive_metastore." + ALUNO + "_schema"
 
 spark.sql(f"CREATE SCHEMA IF NOT EXISTS {SCHEMA}")
 
@@ -123,7 +123,7 @@ df_text.display()
 
 # COMMAND ----------
 
-from pyspark.sql.functions import current_timestamp, input_file_name, lit
+from pyspark.sql.functions import current_timestamp, lit, col
 from pyspark.sql import DataFrame
 from uuid import uuid4
 
@@ -131,7 +131,7 @@ def add_metadata_table(df: DataFrame, data_source)-> DataFrame:
     return (df
         .withColumn("ingestion_ts", current_timestamp())
         .withColumn("batch_id", lit(str(uuid4())))
-        .withColumn("input_file_name", input_file_name())
+        .withColumn("input_file_path", col("_metadata.file_path"))
         .withColumn("data_source", lit(data_source))
     )
 
@@ -163,7 +163,7 @@ df_with_metadata.write.mode('append').saveAsTable(f"{SCHEMA}.bronze_json_compras
 
 # COMMAND ----------
 
-df_bronze = spark.table(f"{SCHEMA}.bronze_json_compras").dropDuplicates(subset=['input_file_name'])
+df_bronze = spark.table(f"{SCHEMA}.bronze_json_compras").dropDuplicates(subset=['input_file_path'])
 
 # COMMAND ----------
 
@@ -267,6 +267,90 @@ if save_table_merge:
         .whenNotMatchedInsertAll()
         .execute()
     )
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
+# MAGIC ## Limpar dados e salvar na silver com Variant
+# MAGIC
+# MAGIC <p>Uma nova feature do Databricks é o tipo <a href="https://docs.databricks.com/aws/en/sql/language-manual/data-types/variant-type">Variant</a>. Essa feature está em public preview e disponível a partir do runtime 15.3 do Databricks. Podemos realizar a mesma série de transformações com esse tipo com algumas diferenças</p>
+
+# COMMAND ----------
+
+df_bronze = spark.table(f"{SCHEMA}.bronze_json_compras").dropDuplicates(subset=['input_file_path'])
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
+# MAGIC Convertendo a coluna que é json para variant
+
+# COMMAND ----------
+
+from pyspark.sql.functions import parse_json
+
+df_bronze_variant = df_bronze.withColumn("value", parse_json('value'))
+df_bronze_variant.display()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
+# MAGIC Explodingo o Array. O processo para explodir o variant no momento não é tão fácil de realizar em pyspark, mas podemos converter em um array de variant e explodir como se fosse um array.
+
+# COMMAND ----------
+
+df_variant_compras_separeted = df_bronze_variant.selectExpr("*", "explode(cast(value as array<variant>)) as compra_json").drop("value")
+df_variant_compras_separeted.display()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
+# MAGIC Como o tipo é variant não há um schema fixo, logo não podemos usar um wild card para transformar os elementos do variant em colunas, então o processo deve ser feito individualmente para cara coluna.
+
+# COMMAND ----------
+
+df_compras_variant_columns = df_variant_compras_separeted.selectExpr(
+    "*", 
+    "compra_json:compra_id::string",
+    "compra_json:compras::array<variant>",
+    "compra_json:`endereço`::string",
+    "compra_json:id_pessoa::string",
+    "compra_json:nome::string"
+).drop("compra_json")
+
+df_compras_variant_columns.display()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
+# MAGIC Agora podemos fazer a explosão com a posição novamente das compras.
+
+# COMMAND ----------
+
+df_variant_items_de_compra = df_compras_variant_columns.select("*", posexplode("compras").alias("item_position", "item_de_compra_json")).drop("compras")
+df_variant_items_de_compra.display()
+
+# COMMAND ----------
+
+# MAGIC %md
+# MAGIC
+# MAGIC E agora ficamos com uma coluna com um documento do tipo variant. Podemos transformar o documento em colunas.
+
+# COMMAND ----------
+
+df_compras_variant_columns = df_variant_items_de_compra.selectExpr(
+    "*", 
+    "item_de_compra_json:id_product::string",
+    "item_de_compra_json:nome_do_produto::string",
+    "item_de_compra_json:peso::Decimal(18,3)",
+    "item_de_compra_json:`preço`::Decimal(18,2)",
+).drop("item_de_compra_json")
+
+df_compras_variant_columns.display()
 
 # COMMAND ----------
 
