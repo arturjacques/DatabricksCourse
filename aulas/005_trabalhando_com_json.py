@@ -251,22 +251,17 @@ table_name = f'{SCHEMA}.silver_compras_json'
 save_table_merge = False
 merge_condition = "(source.compra_id = target.compra_id) AND (source.item_position = target.item_position)"
 
-try:
+if spark.catalog.tableExists(f'{SCHEMA}.silver_compras_json'):
     delta_table_compras = DeltaTable.forName(spark, table_name)
-    save_table_merge = True
-except Exception as e:
-    if "is not a Delta table" in str(e):
-        df_todos_os_items.write.saveAsTable(table_name)
-    else:
-        raise e
 
-if save_table_merge:
     (delta_table_compras.alias("target")
         .merge(df_todos_os_items.alias("source"), merge_condition)
         .whenMatchedUpdateAll()
         .whenNotMatchedInsertAll()
         .execute()
     )
+else:
+    df_todos_os_items.write.saveAsTable(table_name)
 
 # COMMAND ----------
 
