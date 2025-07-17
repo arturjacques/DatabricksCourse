@@ -10,7 +10,7 @@
 # MAGIC </p>
 # MAGIC
 # MAGIC <p>
-# MAGIC   É importante notar que o DataFrame é uma abstração dos dados. Dependendo do formato dos dados de origem ele funciona um pouco diferente no "back-end" se você está criando um DataFrame com base em um parquet e realizando o select de uma coluna, como o parquet é um formato coluna, o spark é capaz de na hora de realizar a leitura selecionar somente as colunas que você quer do arquivo e não ler o resto dele, aumentando muito o tempo de execução. No entando se você ta lendo um CSV e realiza um select de uma coluna o spark precisa ler o arquivo inteiro para retirar os dados que você precisa.
+# MAGIC   É importante notar que o DataFrame é uma abstração dos dados. Dependendo do formato dos dados de origem ele funciona um pouco diferente no "back-end" se você está criando um DataFrame com base em um parquet e realizando o select de uma coluna, como o parquet é um formato coluna, o spark é capaz de na hora de realizar a leitura selecionar somente as colunas que você quer do arquivo e não ler o resto dele, diminuindo muito o tempo de execução. No entando se você ta lendo um CSV e realiza um select de uma coluna o spark precisa ler o arquivo inteiro para retirar os dados que você precisa.
 # MAGIC </p>
 # MAGIC
 # MAGIC <p>
@@ -104,6 +104,10 @@ compras_2_df = (spark
 # COMMAND ----------
 
 compras_1_df.schema
+
+# COMMAND ----------
+
+compras_1_df.schema.json()
 
 # COMMAND ----------
 

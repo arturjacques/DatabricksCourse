@@ -18,7 +18,7 @@ end_date = dbutils.widgets.get("end_date")
 
 print(f"o_orderdate>='{start_date}' AND o_orderdate<'{end_date}'")
 
-#spark.table("samples.tpch.orders").where(f"o_orderdate>='{start_date}' AND o_orderdate<'{end_date}'").display()
+spark.table("samples.tpch.orders").where(f"o_orderdate>='{start_date}' AND o_orderdate<'{end_date}'").display()
 
 # COMMAND ----------
 

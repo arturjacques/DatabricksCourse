@@ -73,20 +73,20 @@ df.where(f"data>='{start_date}' AND data<='{end_date}'").display()
 
 # MAGIC %md
 # MAGIC
-# MAGIC <p>É possível utilizar ${} com o nome do widget dentro das chaves para obter o valor do widget na query SQL.</p>
+# MAGIC <p>É possível utilizar ${} com o nome do widget dentro das chaves para obter o valor do widget na query SQL ou :param.</p>
 
 # COMMAND ----------
 
 # MAGIC %sql
 # MAGIC
-# MAGIC SELECT '${start_date}' as date
+# MAGIC SELECT :start_date as start_date_param, '${start_date}' as start_date_chaves
 
 # COMMAND ----------
 
 # MAGIC %sql
 # MAGIC
 # MAGIC SELECT * FROM compras
-# MAGIC WHERE data>='${start_date}' AND data<='${end_date}'
+# MAGIC WHERE data>=:start_date AND data<=:end_date
 
 # COMMAND ----------
 

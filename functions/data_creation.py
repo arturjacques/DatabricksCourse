@@ -54,7 +54,7 @@ def create_compras_de_usuario(spark, n_compras=20, start_date='2022-01-01', end_
 class CreateComprasDataCsv:
     def __init__(self, spark, dbutils):
         self.csv_tmp_path = "/tmp/csv_with_many_files"
-        self.sink_path = "tmp/compras/"
+        self.sink_path = "/tmp/compras/"
         dbutils.fs.mkdirs(self.sink_path)
 
         self.spark = spark
