@@ -43,7 +43,7 @@ print(30*'=')
 from functions.data_creation import create_compras_de_usuario_list
 
 diretorio_aluno = f"/tmp/{ALUNO}/"
-diretorio_comrpas = diretorio_aluno + "compras"
+diretorio_compras = diretorio_aluno + "compras"
 
 dbutils.fs.rm(diretorio_aluno, True)
 dbutils.fs.mkdirs(diretorio_aluno)
@@ -91,7 +91,7 @@ def create_files_with_data(num_of_files, dbfs_directory):
         with open(f"/dbfs/{dbfs_directory}/{uuid4()}.json", "w", encoding='utf8') as f:
             json.dump(compras_list, f, ensure_ascii=False)
 
-create_files_with_data(6, diretorio_comrpas)
+create_files_with_data(6, diretorio_compras)
 
 # COMMAND ----------
 
@@ -130,7 +130,7 @@ bronze_df = (spark.readStream \
                 .format("cloudFiles")
                 .option("cloudFiles.schemaLocation", diretorio_aluno+'/schema_table_bronze')
                 .option("cloudFiles.format", "json")
-                .load(diretorio_comrpas))
+                .load(diretorio_compras))
 
 bronze_df_with_metadata = add_metadata_table(bronze_df, 'json_files')
 
